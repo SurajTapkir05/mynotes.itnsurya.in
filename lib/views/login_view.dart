@@ -3,7 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/firebase_options.dart';
-import 'dart:developer' as devtools show log;
+import 'package:mynotes/utilities/show_error_dialog.dart';
+// import 'dart:developer' as devtools show log;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -69,27 +70,39 @@ class _LoginViewState extends State<LoginView> {
                     email: email,
                     password: password,
                   );
-                  BuildContext currentContext = context;
                   if (!context.mounted) {
                     return;
                   }
-                  Navigator.of(currentContext).pushNamedAndRemoveUntil(
+                  Navigator.of(context).pushNamedAndRemoveUntil(
                     notesRoute,
                     (route) => false,
                   );
                 } on FirebaseAuthException catch (e) {
-                  switch (e.code) {
-                    case 'user-not-found':
-                      devtools.log('User not Found');
-                    case 'wrong-password':
-                      devtools.log('Wrong Password');
-                    case 'invalid-email':
-                      devtools.log('Invalid Email');
-                    case 'invalid-credential':
-                      devtools.log('Invalid Credentials');
-                    default:
-                      devtools.log(e.code);
+                  if (!context.mounted) {
+                    return;
                   }
+                  switch (e.code) {
+                    case 'invalid-credential':
+                      await showErrorDialog(
+                        context,
+                        'Invalid Credentials',
+                      );
+                    case 'invalid-email':
+                      await showErrorDialog(
+                        context,
+                        'Invalid Email',
+                      );
+                    default:
+                      await showErrorDialog(
+                        context,
+                        'Error: ${e.code}',
+                      );
+                  }
+                } catch (e) {
+                  await showErrorDialog(
+                    context,
+                    e.toString(),
+                  );
                 }
               },
               style: TextButton.styleFrom(
@@ -111,3 +124,4 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
