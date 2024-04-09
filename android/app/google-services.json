@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "84658114900",
+    "project_id": "mynotes-itnsurya",
+    "storage_bucket": "mynotes-itnsurya.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84658114900:android:763ec35d6cc40dcd55b8c1",
+        "android_client_info": {
+          "package_name": "in.itnsurya.mynotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsnnzBL21hBuFsI56okKl0ENONf0zjXhQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
