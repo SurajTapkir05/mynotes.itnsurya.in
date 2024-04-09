@@ -5,6 +5,8 @@ import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/firebase_options.dart';
 import 'dart:developer' as devtools show log;
 
+import 'package:mynotes/utilities/show_error_dialog.dart';
+
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -67,24 +69,54 @@ class _RegisterViewState extends State<RegisterView> {
               final password = _password.text;
 
               try {
-                final userCredential = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(
-                        email: email, password: password);
-
-                devtools.log(userCredential.toString());
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                if(!context.mounted){
+                  return;
+                }
+                Navigator.of(context).pushNamed(
+                  verifyEmailRoute,
+                );
               } on FirebaseAuthException catch (e) {
+                if (!context.mounted) {
+                  return;
+                }
                 switch (e.code) {
                   case 'weak-password':
-                    devtools.log('Weak Password');
+                    showErrorDialog(
+                      context,
+                      'Weak Password',
+                    );
                   case 'email-already-in-use':
-                    devtools.log('Email already in use');
+                    showErrorDialog(
+                      context,
+                      'Email already in use',
+                    );
                   case 'invalid-email':
-                    devtools.log('Invalid Email');
+                    showErrorDialog(
+                      context,
+                      'Invalid Email',
+                    );
                   case 'channel-error':
-                    devtools.log("Enter Email and Password");
+                    showErrorDialog(
+                      context,
+                      'Enter Email and Password',
+                    );
                   default:
-                    devtools.log(e.code);
+                    showErrorDialog(
+                      context,
+                      'Error: ${e.code}',
+                    );
                 }
+              } catch (e) {
+                showErrorDialog(
+                  context,
+                  e.toString(),
+                );
               }
             },
             style: TextButton.styleFrom(
