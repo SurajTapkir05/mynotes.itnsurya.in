@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/firebase_options.dart';
 import 'dart:developer' as devtools show log;
 
@@ -14,7 +15,6 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-
 
   @override
   void initState() {
@@ -74,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
                     return;
                   }
                   Navigator.of(currentContext).pushNamedAndRemoveUntil(
-                    '/notes/',
+                    notesRoute,
                     (route) => false,
                   );
                 } on FirebaseAuthException catch (e) {
@@ -92,6 +92,9 @@ class _LoginViewState extends State<LoginView> {
                   }
                 }
               },
+              style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.deepPurple),
               child: const Text('Login')),
           TextButton(
             onPressed: () {
