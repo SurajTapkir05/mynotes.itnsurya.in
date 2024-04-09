@@ -5,6 +5,7 @@ class WrongPasswordAuthException implements Exception{}
 
 class InvalidCredentialsAuthException implements Exception{}
 
+
 // Register Exceptions
 
 class WeakPasswordAuthException implements Exception{}

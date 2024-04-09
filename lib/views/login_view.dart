@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
-import 'package:mynotes/firebase_options.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
-// import 'dart:developer' as devtools show log;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -21,7 +19,6 @@ class _LoginViewState extends State<LoginView> {
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
-    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     super.initState();
   }
 
@@ -66,15 +63,16 @@ class _LoginViewState extends State<LoginView> {
                 final password = _password.text;
 
                 try {
-                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  // AuthService.firebase().initialize();
+                  await AuthService.firebase().logIn(
                     email: email,
                     password: password,
                   );
-                  final user = FirebaseAuth.instance.currentUser;
+                  final user = AuthService.firebase().currentUser;
                   if (!context.mounted) {
                     return;
                   }
-                  if (user?.emailVerified ?? false) {
+                  if (user?.isEmailVerified ?? false) {
                     //If the user is verified
                     Navigator.of(context).pushNamedAndRemoveUntil(
                       notesRoute,
@@ -86,33 +84,27 @@ class _LoginViewState extends State<LoginView> {
                       (route) => false,
                     );
                   }
-                } on FirebaseAuthException catch (e) {
-                  if (!context.mounted) {
-                    return;
-                  }
-                  switch (e.code) {
-                    case 'invalid-credential':
-                      await showErrorDialog(
-                        context,
-                        'Invalid Credentials',
-                      );
-                    case 'invalid-email':
-                      await showErrorDialog(
-                        context,
-                        'Invalid Email',
-                      );
-                    default:
-                      await showErrorDialog(
-                        context,
-                        'Error: ${e.code}',
-                      );
-                  }
-                } catch (e) {
+                } on UserNotFoundAuthException {
                   await showErrorDialog(
                     context,
-                    e.toString(),
+                    'User Not Found',
                   );
-                }
+                } on InvalidCredentialsAuthException {
+                  await showErrorDialog(
+                    context,
+                    'Invalid Credentials',
+                  );
+                } on InvalidEmailAuthException {
+                  await showErrorDialog(
+                    context,
+                    'Invalid Email',
+                  );
+                } on GenericAuthException {
+                  await showErrorDialog(
+                    context,
+                    'Authentication Error',
+                  );
+                } 
               },
               style: TextButton.styleFrom(
                   foregroundColor: Colors.white,

@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
-import 'package:mynotes/firebase_options.dart';
-import 'dart:developer' as devtools show log;
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
@@ -24,7 +22,6 @@ class _RegisterViewState extends State<RegisterView> {
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
-    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     super.initState();
   }
 
@@ -69,54 +66,39 @@ class _RegisterViewState extends State<RegisterView> {
               final password = _password.text;
 
               try {
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: email,
-                  password: password,
-                );
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                await AuthService.firebase().createUser(email: email, password: password,);
+                AuthService.firebase().sendEmailVerification();
                 if(!context.mounted){
                   return;
                 }
                 Navigator.of(context).pushNamed(
                   verifyEmailRoute,
                 );
-              } on FirebaseAuthException catch (e) {
-                if (!context.mounted) {
-                  return;
-                }
-                switch (e.code) {
-                  case 'weak-password':
-                    showErrorDialog(
+              } on WeakPasswordAuthException{
+                showErrorDialog(
                       context,
                       'Weak Password',
                     );
-                  case 'email-already-in-use':
-                    showErrorDialog(
+              } on EmailAlreadyInUseAuthException{
+                showErrorDialog(
                       context,
                       'Email already in use',
                     );
-                  case 'invalid-email':
-                    showErrorDialog(
+              } on InvalidEmailAuthException{
+                showErrorDialog(
                       context,
                       'Invalid Email',
                     );
-                  case 'channel-error':
-                    showErrorDialog(
+              } on ChannelErrorAuthException{
+                 showErrorDialog(
                       context,
                       'Enter Email and Password',
                     );
-                  default:
-                    showErrorDialog(
+              } on GenericAuthException{
+                 showErrorDialog(
                       context,
-                      'Error: ${e.code}',
+                      'Failed to Register',
                     );
-                }
-              } catch (e) {
-                showErrorDialog(
-                  context,
-                  e.toString(),
-                );
               }
             },
             style: TextButton.styleFrom(
