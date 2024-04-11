@@ -13,6 +13,7 @@ import 'package:mynotes/views/verify_email.dart';
 
 
 void main() {
+  AuthService.firebase().initialize();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MaterialApp(
@@ -38,7 +39,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder (
       future: AuthService.firebase().initialize(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {

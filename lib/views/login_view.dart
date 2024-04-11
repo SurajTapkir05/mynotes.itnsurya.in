@@ -43,8 +43,8 @@ class _LoginViewState extends State<LoginView> {
             controller: _email,
             enableSuggestions: false,
             autocorrect: false,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+          keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration( 
               hintText: 'Enter your email here',
             ),
           ),
@@ -78,7 +78,7 @@ class _LoginViewState extends State<LoginView> {
                       notesRoute,
                       (route) => false,
                     );
-                  } else {
+                  } else {  
                     Navigator.of(context).pushNamedAndRemoveUntil(
                       verifyEmailRoute,
                       (route) => false,
