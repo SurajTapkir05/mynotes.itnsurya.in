@@ -33,10 +33,16 @@ class _NotesViewState extends State<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main UI'),
+        title: const Text('Notes'),
         foregroundColor: Colors.white,
         backgroundColor: Colors.blue,
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
@@ -44,6 +50,9 @@ class _NotesViewState extends State<NotesView> {
                   final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
                     await AuthService.firebase().logOut();
+                    if (!context.mounted) {
+                      return;
+                    }
                     Navigator.of(context)
                         .pushNamedAndRemoveUntil(loginRoute, (route) => false);
                   }
@@ -68,9 +77,9 @@ class _NotesViewState extends State<NotesView> {
               return StreamBuilder(
                 stream: _noteService.allNotes,
                 builder: (context, snapshot) {
-                  switch(snapshot.connectionState){
+                  switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
-                      return const Text('Waiting for the notes');
+                      return const Text('Waiting for notes');
                     default:
                       return const CircularProgressIndicator();
                   }
