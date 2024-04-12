@@ -12,11 +12,16 @@ class NoteService {
   List<DatabaseNote> _notes = [];
 
   static final NoteService _shared = NoteService._sharedInstance();
-  NoteService._sharedInstance();
+  NoteService._sharedInstance(){
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NoteService() => _shared;
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
@@ -290,7 +295,7 @@ class DatabaseUser {
 
   DatabaseUser.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
-        email = [emailColumn] as String;
+        email = map[emailColumn] as String;
 
   @override
   String toString() => 'Person: ID = $id, Email = $email';
@@ -317,14 +322,14 @@ class DatabaseNote {
 
   DatabaseNote.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
-        userId = [userIdColumn] as int,
-        text = [textColumn] as String,
+        userId = map[userIdColumn] as int,
+        text = map[textColumn] as String,
         isSyncedWithCloud =
             (map[isSyncedWithCloudColumn] as int) == 1 ? true : false;
 
   @override
   String toString() =>
-      'Note: id = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud';
+      'Note: id = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, text = $text';
 
   @override
   bool operator ==(covariant DatabaseNote other) => id == other.id;
