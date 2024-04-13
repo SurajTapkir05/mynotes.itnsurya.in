@@ -35,7 +35,7 @@ class _NotesViewState extends State<NotesView> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(newNoteRoute);
+              Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
             },
             icon: const Icon(Icons.add),
           ),
@@ -68,7 +68,7 @@ class _NotesViewState extends State<NotesView> {
       body: FutureBuilder(
         future: _noteService.getOrCreateUser(email: userEmail),
         builder: (context, snapshot) {
-          print('Snap has data: $snapshot.data');
+          // print('Snap has data: $snapshot.data');
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               return StreamBuilder(
@@ -83,6 +83,12 @@ class _NotesViewState extends State<NotesView> {
                           notes: allNotes,
                           onDeleteNote: (note) async {
                             await _noteService.deleteNote(id: note.id);
+                          },
+                          onTap: (note) {
+                            Navigator.of(context).pushNamed(
+                              createOrUpdateNoteRoute,
+                              arguments: note,
+                            );
                           },
                         );
                       } else {
